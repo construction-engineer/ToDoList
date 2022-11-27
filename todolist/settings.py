@@ -94,7 +94,14 @@ AUTH_USER_MODEL = 'core.User'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db(),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env.str("POSTGRES_DB"),
+        'USER': env.str("POSTGRES_USER"),
+        'PASSWORD': env.str("POSTGRES_PASSWORD"),
+        'HOST': env.str("POSTGRES_HOST", default='127.0.0.1'),
+        'PORT': env.str("POSTGRES_PORT", 5432),
+    }
 }
 
 
