@@ -1,0 +1,86 @@
+version: "3.9"
+
+services:
+  front:
+    image: sermalenk/skypro-front:lesson-34
+    restart: always
+    ports:
+      - "80:80"
+    depends_on: # зависимость от api
+      api:
+        condition: service_healthy
+    networks:
+      - frontend_td
+    volumes:
+      - ./deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: curl -sS http://127.0.0.1:8000/ping/ || exit 1
+      interval: 3s
+      timeout: 3s
+      retries: 3
+    command: python3 manage.py runserver 127.0.0.1:8000
+    networks:
+      - backend_td
+      - frontend_td
+    volumes:
+      - ./:/opt/todolist
+
+  migrations:
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: postgres
+    depends_on: # зависимость от контейнера pg
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend_td
+    command: >
+      sh -c "python manage.py migrate"
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    env_file:
+      - .env
+    healthcheck: # healthcheck для БД
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes: # волюм для данных БД
+      - postgres_db:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    networks: # сеть для бекэнда
+      - backend_td
+
+volumes:
+  postgres_db:
+    external:
+      name: 0a60d9b81666c28806fbb2a0ae49a93d5adb0bf147cf208dcea341c4cf76df37
+
+networks:
+  backend_td:
+    driver: bridge
+  frontend_td:
+    driver: bridge
