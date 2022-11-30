@@ -29,6 +29,9 @@ jobs:
         with:
         strip_v: true
       -
+        name: Use tag
+        run: echo ${{steps.tag.outputs.tag}}
+      -
         name: Build and push
         uses: docker/build-push-action@v3
         with:
