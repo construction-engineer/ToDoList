@@ -9,7 +9,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=off \
     PYTHONPATH=/opt/todolist \
     POETRY_VERSION=1.1.13
-#    POETRY_HOME="/opt/poetry"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -31,5 +30,5 @@ RUN poetry config virtualenvs.create false \
 
 COPY ./todolist ./todolist
 COPY ./core ./core
-COPY ./front ./front
+
 COPY manage.py README.md ./
