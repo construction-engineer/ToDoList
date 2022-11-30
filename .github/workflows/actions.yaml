@@ -27,7 +27,10 @@ jobs:
         id: tag
         uses: dawidd6/action-get-tag@v1
         with:
-        strip_v: true
+          strip_v: true
+      -
+        name: Use tag
+        run: echo ${{steps.tag.outputs.tag}}
       -
         name: Build and push
         uses: docker/build-push-action@v3
