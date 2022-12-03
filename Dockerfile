@@ -32,3 +32,5 @@ COPY ./todolist ./todolist
 COPY ./core ./core
 
 COPY manage.py README.md ./
+
+ENTRYPOINT ["bash", "entrypoint.sh"]
