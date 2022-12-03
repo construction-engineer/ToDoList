@@ -26,8 +26,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      migrations:
-        condition: service_completed_successfully
     ports:
       - "8000:8000"
     healthcheck:
@@ -41,21 +39,6 @@ services:
       - frontend_td
     volumes:
       - ./:/opt/todolist
-
-  migrations:
-    build:
-      context: .
-    env_file:
-      - .env
-    environment:
-      POSTGRES_HOST: postgres
-    depends_on: # зависимость от контейнера pg
-      postgres:
-        condition: service_healthy
-    networks:
-      - backend_td
-    command: >
-      sh -c "python manage.py migrate"
 
   postgres:
     image: postgres:latest

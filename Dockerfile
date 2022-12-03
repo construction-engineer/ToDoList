@@ -31,4 +31,6 @@ RUN poetry config virtualenvs.create false \
 COPY ./todolist ./todolist
 COPY ./core ./core
 
-COPY manage.py README.md ./
+COPY manage.py README.md entrypoint.sh ./
+
+ENTRYPOINT ["bash", "entrypoint.sh"]
