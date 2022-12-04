@@ -42,15 +42,34 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/todolist:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/todolist:buildcache, mode=max~
 
-#  deploy:
-#    needs: build
-#    runs-on: ubuntu-22.04
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#      - name: Get tag
-#        id: tag
-#        uses: dawidd6/action-get-tag@v1
-#        with:
-#          strip_v: true
-#      - name: Render template
+  deploy:
+    needs: build
+    runs-on: ubuntu-22.04
+    env:
+      ANSIBLE_VAULT_PASSWORD_FILE: /tmp/.vault_pass.txt
+      VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+        with:
+          strip_v: true
+      - name: Render template
+        run: |
+          echo "$VAULT_PASSWORD" > /tmp/.vault_pass.txt
+          ansible-vault dencrypt deploy/nginx/default.conf
+          ansible-vault dencrypt deploy/docker-compose.yaml
+          ansible-vault dencrypt deploy/env
+          mv deploy/env deploy/.env
+          printf "\nTAG_NAME=${{ steps.tag.outputs.tag }}" >> deploy/.env
+      - name: Copy on server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          source: "deploy/*"
+          target: todolist
+          strip_components: 1
