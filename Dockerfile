@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_NO_CACHE_DIR=off \
     PYTHONPATH=/opt/todolist \
-    POETRY_VERSION=1.1.13
+    POETRY_VERSION=1.2.2
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
