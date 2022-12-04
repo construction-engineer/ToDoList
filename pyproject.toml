@@ -14,6 +14,9 @@ psycopg2 = "^2.9.5"
 django-environ = "^0.9.0"
 
 
+[tool.poetry.group.dev.dependencies]
+ansible-vault-win = "^1.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
