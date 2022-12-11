@@ -59,8 +59,8 @@ services:
 
 volumes:
   postgres_db:
-    external:
-      name: 0a60d9b81666c28806fbb2a0ae49a93d5adb0bf147cf208dcea341c4cf76df37
+    name: $EXTERNAL_DB_NAME
+    external: true
 
 networks:
   backend_td:
