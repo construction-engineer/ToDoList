@@ -51,11 +51,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Get tag
         id: tag
         uses: dawidd6/action-get-tag@v1
         with:
           strip_v: true
+
       - name: Render template
         run: |
           echo "$VAULT_PASSWORD" > /tmp/.vault_pass.txt
@@ -64,6 +66,7 @@ jobs:
           ansible-vault decrypt ./deploy/env
           mv deploy/env deploy/.env
           printf "\nTAG_NAME=${{ steps.tag.outputs.tag }}" >> deploy/.env
+
       - name: Copy on server
         uses: appleboy/scp-action@master
         with:
@@ -73,3 +76,23 @@ jobs:
           source: "deploy/*"
           target: todolist
           strip_components: 1
+
+      - name: run docker-compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd todolist
+            docker compose up -d
+
+      - name: clear after deploy
+        if: always()
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            docker system prune -a -f
