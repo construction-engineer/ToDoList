@@ -28,9 +28,6 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.create false \
     && poetry install --no-root --no-dev
 
-COPY ./todolist ./todolist
-COPY ./core ./core
-
-COPY manage.py README.md entrypoint.sh ./
+COPY . .
 
 ENTRYPOINT ["bash", "entrypoint.sh"]
