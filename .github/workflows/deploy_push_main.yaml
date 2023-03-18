@@ -1,50 +1,35 @@
 name: Build and deploy action
 on:
   push:
-    tags:
-      - v*
     branches:
-      - "main"
+      - master
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v3
-      -
-        name: Login to DockerHub
+      - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      -
-        name: Get tag
-        id: tag
-        uses: dawidd6/action-get-tag@v1
-        with:
-          strip_v: true
-      -
-        name: Use tag
-        run: echo ${{steps.tag.outputs.tag}}
-      -
-        name: Build and push
-        uses: docker/build-push-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v4
         with:
           context: .
-          file: Dockerfile
+          file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/todolist:${{ steps.tag.outputs.tag }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/todolist:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/todolist:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/todolist:buildcache, mode=max~
 
   deploy:
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       ANSIBLE_VAULT_PASSWORD_FILE: /tmp/.vault_pass.txt
       VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
@@ -52,19 +37,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Get tag
-        id: tag
-        uses: dawidd6/action-get-tag@v1
-        with:
-          strip_v: true
-
       - name: Render template
         run: |
           echo "$VAULT_PASSWORD" > /tmp/.vault_pass.txt
-          ansible-vault decrypt ./deploy/docker-compose.yaml
           ansible-vault decrypt ./deploy/env
           mv deploy/env deploy/.env
-          printf "\nTAG_NAME=${{ steps.tag.outputs.tag }}" >> deploy/.env
 
       - name: Copy on server
         uses: appleboy/scp-action@master
@@ -84,6 +61,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd todolist
+            docker compose pull
             docker compose up -d
 
       - name: clear after deploy

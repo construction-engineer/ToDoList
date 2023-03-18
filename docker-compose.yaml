@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   front:
-    image: sermalenk/skypro-front:lesson-34
+    image: sermalenk/skypro-front:lesson-35
     restart: always
     ports:
       - "80:80"
@@ -37,9 +37,6 @@ services:
     networks:
       - backend_td
       - frontend_td
-# уже нет необходимости, так как создал dockerignore и изменил dockerfile, удалил чтобы не загрязнять контейнер
-#    volumes:
-#      - ./:/opt/todolist
 
   postgres:
     image: postgres:latest
