@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from todolist.core.serializers import CreateUserSerializer, LoginSerializer, ProfileSerializer
+from todolist.core.serializers import CreateUserSerializer, LoginSerializer, ProfileSerializer, UpdatePasswordSerializer
 
 
 class SignUpView(generics.CreateAPIView):
@@ -32,3 +32,11 @@ class ProfileView(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, instance):
         logout(self.request)
+
+
+class UpdatePasswordView(generics.UpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UpdatePasswordSerializer
+
+    def get_object(self):
+        return self.request.user
