@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   front:
-    image: sermalenk/skypro-front:lesson-37
+    image: sermalenk/skypro-front:lesson-38
     restart: always
     ports:
       - "80:80"
@@ -22,7 +22,7 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: $POSTGRES_HOST
     depends_on:
       postgres:
         condition: service_healthy
@@ -37,6 +37,20 @@ services:
     networks:
       - backend_td
       - frontend_td
+
+  bot:
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: $POSTGRES_HOST
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: python manage.py runbot
+    networks:
+      - backend_td
 
   postgres:
     image: postgres:latest

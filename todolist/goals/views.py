@@ -77,7 +77,6 @@ class GoalCategoryListView(generics.ListAPIView):
 
     def get_queryset(self):
         return GoalCategory.objects.prefetch_related('board__participants').filter(
-            # board_id=self.request.query_params.get('board'),
             board__participants__user_id=self.request.user.id,
             is_deleted=False,
         )
