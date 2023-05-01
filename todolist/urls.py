@@ -13,6 +13,7 @@ urlpatterns = [
     path('oauth/', include('social_django.urls', namespace='social')),
     path('core/', include(('todolist.core.urls', 'todolist.core'))),
     path('goals/', include(('todolist.goals.urls', 'todolist.goals'))),
+    path('bot/', include(('todolist.bot.urls', 'todolist.bot'))),
 ]
 
 if settings.DEBUG:
